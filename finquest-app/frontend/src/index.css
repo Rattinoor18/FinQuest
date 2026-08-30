@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#121214] text-slate-200 font-sans antialiased selection:bg-white selection:text-black min-h-screen;
+    background-color: #121214;
+    background-image: 
+      radial-gradient(ellipse at 50% 20%, rgba(255, 255, 255, 0.04) 0%, transparent 65%),
+      radial-gradient(ellipse at 80% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 90%, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
+    background-attachment: fixed;
+  }
+}
+
+/* Orealbank Studio Charcoal Glassmorphism */
+.oreal-glass {
+  background: rgba(28, 28, 31, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.oreal-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%), rgba(26, 26, 29, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.oreal-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+}
+
+/* Orealbank Vertical Glass Credit Card */
+.oreal-credit-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(35, 35, 40, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Orealbank Nude/Beige Patterned Card */
+.oreal-pattern-card {
+  background: #d8c3b0;
+  background-image: radial-gradient(#c2aa95 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  color: #2c251e;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Pill Buttons */
+.oreal-btn-primary {
+  @apply bg-white text-black font-extrabold px-7 py-3.5 rounded-full text-xs tracking-wider uppercase transition-all shadow-xl hover:bg-slate-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2;
+}
+
+.oreal-btn-secondary {
+  @apply text-xs font-semibold tracking-wider text-slate-300 hover:text-white uppercase underline underline-offset-8 transition-all;
+}
+
+.oreal-btn-pill {
+  @apply rounded-full border border-white/20 hover:border-white/40 text-xs px-5 py-2 uppercase font-medium tracking-wider text-slate-200 hover:text-white transition-all bg-white/5 hover:bg-white/10;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #121214;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2e;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #44444a;
+}

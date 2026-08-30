@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.env
+
+# Build outputs
+# dist/
+build/
+
+# IDE / System
+.DS_Store
+.vscode/
+.idea/
+*.log
