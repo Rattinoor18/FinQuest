@@ -16,7 +16,8 @@ import {
   Quote,
   ChevronRight,
   Play,
-  RotateCcw
+  Tv,
+  Video
 } from 'lucide-react';
 import { PageRoute, LabType } from '../types';
 
@@ -59,7 +60,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Famous Financial Quotes Dataset with Author Details
+  // Famous Financial Quotes Dataset
   const financialQuotes = [
     {
       quote: "Rule No. 1: Never lose money. Rule No. 2: Never forget rule No. 1.",
@@ -141,7 +142,6 @@ export const HomePage: React.FC<HomePageProps> = ({
     },
   ];
 
-  // Calculate current simulated index value based on loop progress
   const currentSimulatedIdx = Math.min(
     stock10YearData.length - 1,
     Math.floor((loopProgress / 100) * stock10YearData.length)
@@ -151,41 +151,38 @@ export const HomePage: React.FC<HomePageProps> = ({
   const currentLabel = stock10YearData[currentSimulatedIdx]?.label || 'ATH';
 
   return (
-    <div className="space-y-12 sm:space-y-16 pb-16 animate-fadeIn">
-      {/* ================= HERO SHOWCASE SECTION (SHARPLINK STYLE) ================= */}
+    <div className="space-y-12 sm:space-y-16 pb-16 animate-fadeIn text-left">
+      {/* ================= HERO SHOWCASE SECTION WITH AMBIENT VIDEO & HIGH IMPACT TYPOGRAPHY ================= */}
       <section className="relative pt-4 pb-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Hero Column */}
-          <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
-            {/* Tagline Badge */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-blue-600/10 border border-blue-500/30 text-xs font-mono-tech text-cyan-400">
-              <span className="w-2 h-2 bg-cyan-400 shadow-[0_0_8px_#00F0FF] animate-pulse" />
-              <span>// FINQUEST FINANCIAL LITERACY PLATFORM</span>
+          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-blue-600/15 border border-cyan-400/40 text-xs font-mono-tech text-cyan-300">
+              <span className="w-2 h-2 bg-cyan-400 shadow-[0_0_10px_#00F0FF] animate-pulse" />
+              <span>// FINQUEST NISM FINANCIAL LITERACY ENGINE</span>
             </div>
 
-            {/* Giant SharpLink Style Headline */}
-            <div className="space-y-1">
-              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-white uppercase leading-[0.92]">
+            <div className="space-y-2">
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-white uppercase leading-[0.92] heading-display">
                 THE MARKET IS NOT A CLASSROOM.
               </h1>
-              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-cyan-400 to-white uppercase leading-[0.92]">
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-cyan-400 to-white uppercase leading-[0.92] heading-display">
                 FINQUEST IS.
               </h1>
             </div>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-xl font-medium leading-relaxed">
-              <strong className="text-white">Learn Money by Managing Money.</strong> Drop into a simulated financial life complete with salary, rent, expenses, and real decisions — where you can make every expensive mistake without losing a single real rupee.
+            <p className="text-base sm:text-lg text-slate-300 max-w-xl font-normal leading-relaxed">
+              <strong className="text-white font-semibold">Learn Money by Managing Money.</strong> Real-time AI video avatar, live market simulators, and NISM financial literacy courseware for Bharat.
             </p>
 
-            {/* Sharp CTA Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 onClick={() => onNavigate('voice-ai')}
                 className="sharplink-btn-primary"
               >
-                <span>LAUNCH AURELIUS INTELLIGENCE</span>
+                <Video className="w-4 h-4 text-white" />
+                <span>LAUNCH REAL-TIME VIDEO AI</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -193,7 +190,8 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onClick={() => onNavigate('courses')}
                 className="sharplink-btn-secondary"
               >
-                EXPLORE NISM ACADEMY
+                <Tv className="w-4 h-4 text-cyan-400" />
+                EXPLORE NISM VIDEO COURSES
               </button>
             </div>
           </div>
@@ -230,7 +228,6 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                 {/* Animated SVG Graph Video Canvas */}
                 <div className="relative h-44 w-full bg-[#05080E] border border-slate-800 p-2 overflow-hidden flex flex-col justify-end">
-                  {/* SVG Line path representing 10-year stock cycle */}
                   <svg className="w-full h-full" viewBox="0 0 300 120" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
@@ -239,13 +236,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                       </linearGradient>
                     </defs>
                     
-                    {/* Area shading */}
                     <polygon
                       points="0,120 0,90 30,70 60,65 90,50 120,110 150,40 180,35 210,20 240,10 270,5 300,5 300,120"
                       fill="url(#stockGrad)"
                     />
 
-                    {/* Stock Price Curve Line */}
                     <path
                       d="M0,90 Q30,70 60,65 T120,110 T180,35 T240,10 T300,5"
                       fill="none"
@@ -253,7 +248,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                       strokeWidth="2.5"
                     />
 
-                    {/* Moving Loop Progress Vertical Line & Tracer Point */}
                     <line
                       x1={`${(loopProgress / 100) * 300}`}
                       y1="0"
@@ -272,7 +266,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                     />
                   </svg>
 
-                  {/* Loop Progress Status Ribbon */}
                   <div className="w-full bg-slate-900 h-1 mt-2">
                     <div
                       style={{ width: `${loopProgress}%` }}
@@ -287,21 +280,20 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* ================= FAMOUS FINANCIAL QUOTES SECTION (WITH AUTHOR DETAILS) ================= */}
+      {/* ================= FAMOUS FINANCIAL QUOTES SECTION ================= */}
       <section className="sharplink-card sharplink-pin p-8 border-l-4 border-l-blue-600 space-y-4 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <span className="text-[10px] font-mono-tech text-cyan-400 font-bold uppercase tracking-widest flex items-center gap-2">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3 font-mono-tech">
+          <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest flex items-center gap-2">
             <Quote className="w-4 h-4 text-blue-500" />
             // LEGENDARY FINANCIAL CODES & WISDOM
           </span>
-          <span className="text-[10px] font-mono-tech text-slate-400 uppercase">
+          <span className="text-[10px] text-slate-400 uppercase">
             QUOTE {activeQuoteIndex + 1} OF {financialQuotes.length}
           </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center py-2">
-          {/* Quote Text */}
-          <div className="lg:col-span-8 space-y-2 text-left">
+          <div className="lg:col-span-8 space-y-2">
             <span className="text-xs font-mono-tech px-2.5 py-0.5 bg-blue-500/10 border border-blue-500/30 text-cyan-300 font-bold inline-block mb-2">
               {financialQuotes[activeQuoteIndex].category}
             </span>
@@ -310,19 +302,17 @@ export const HomePage: React.FC<HomePageProps> = ({
             </p>
           </div>
 
-          {/* Author Details Card */}
-          <div className="lg:col-span-4 p-5 bg-[#05080E] border border-slate-800 text-left font-mono-tech space-y-1">
+          <div className="lg:col-span-4 p-5 bg-[#05080E] border border-slate-800 font-mono-tech space-y-1">
             <span className="text-[10px] text-slate-400 uppercase block">AUTHOR & CREDENTIALS</span>
             <span className="text-lg font-black text-cyan-400 block">
               {financialQuotes[activeQuoteIndex].author}
             </span>
-            <span className="text-xs text-slate-300 block font-normal">
+            <span className="text-xs text-slate-300 block font-normal font-sans">
               {financialQuotes[activeQuoteIndex].title}
             </span>
           </div>
         </div>
 
-        {/* Carousel Indicators */}
         <div className="flex gap-2 pt-2 border-t border-slate-800">
           {financialQuotes.map((q, idx) => (
             <button
@@ -380,7 +370,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* ================= 6 CONCEPT LABS RIBBON ================= */}
       <section className="space-y-6 pt-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div className="text-left">
+          <div>
             <span className="text-[10px] font-mono-tech text-cyan-400 font-bold block mb-1">
               // INTERACTIVE LABS
             </span>
@@ -403,7 +393,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div
                 key={lab.id}
                 onClick={() => onLaunchLab(lab.id)}
-                className="sharplink-card sharplink-pin p-6 cursor-pointer group transition-all space-y-4 text-left"
+                className="sharplink-card sharplink-pin p-6 cursor-pointer group transition-all space-y-4"
               >
                 <div>
                   <div className="flex justify-between items-start mb-3">

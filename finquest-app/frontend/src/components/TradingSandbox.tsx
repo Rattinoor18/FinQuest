@@ -12,10 +12,35 @@ import {
 } from 'lucide-react';
 import { StockQuote, PortfolioSummary } from '../types';
 
+const DEFAULT_QUOTES: StockQuote[] = [
+  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd', price: 2980.50, change: 42.50, change_pct: 1.45, open: 2945.0, high: 3010.0, low: 2940.0, prev_close: 2938.0, volume: 5400200, category: 'EQUITY' },
+  { symbol: 'TCS', name: 'Tata Consultancy Services', price: 4210.00, change: -27.50, change_pct: -0.65, open: 4240.0, high: 4250.0, low: 4180.0, prev_close: 4237.5, volume: 2100400, category: 'EQUITY' },
+  { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd', price: 1640.25, change: 13.80, change_pct: 0.85, open: 1628.0, high: 1655.0, low: 1625.0, prev_close: 1626.45, volume: 8900100, category: 'EQUITY' },
+  { symbol: 'INFY', name: 'Infosys Ltd', price: 1890.75, change: 38.90, change_pct: 2.10, open: 1855.0, high: 1910.0, low: 1850.0, prev_close: 1851.85, volume: 4300900, category: 'EQUITY' },
+  { symbol: 'NIFTY50', name: 'NIFTY 50 Index Fund', price: 24550.00, change: 127.00, change_pct: 0.52, open: 24430.0, high: 24620.0, low: 24410.0, prev_close: 24423.0, volume: 15400000, category: 'INDEX' }
+];
+
+const DEFAULT_PORTFOLIO: PortfolioSummary = {
+  initial_capital: 1000000.0,
+  cash_balance: 950000.0,
+  invested_amount: 61000.0,
+  total_portfolio_value: 1012610.0,
+  total_unrealized_pnl: 1610.0,
+  total_unrealized_pnl_pct: 0.16,
+  total_realized_pnl: 0,
+  trades_count: 2,
+  financial_health_score: 88,
+  asset_allocation: { EQUITY: 60, INDEX: 40 },
+  positions: [
+    { symbol: 'RELIANCE', name: 'Reliance Industries Ltd', quantity: 10, avg_price: 2900.0, current_price: 2980.50, invested_value: 29000.0, current_value: 29805.0, unrealized_pnl: 805.0, unrealized_pnl_pct: 2.78 },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd', quantity: 20, avg_price: 1600.0, current_price: 1640.25, invested_value: 32000.0, current_value: 32805.0, unrealized_pnl: 805.0, unrealized_pnl_pct: 2.53 }
+  ]
+};
+
 export const TradingSandbox: React.FC = () => {
-  const [quotes, setQuotes] = useState<StockQuote[]>([]);
-  const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
-  const [selectedStock, setSelectedStock] = useState<StockQuote | null>(null);
+  const [quotes, setQuotes] = useState<StockQuote[]>(DEFAULT_QUOTES);
+  const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(DEFAULT_PORTFOLIO);
+  const [selectedStock, setSelectedStock] = useState<StockQuote | null>(DEFAULT_QUOTES[0]);
   const [quantity, setQuantity] = useState<number>(10);
   const [loading, setLoading] = useState<boolean>(false);
   const [orderMessage, setOrderMessage] = useState<string | null>(null);
@@ -31,7 +56,7 @@ export const TradingSandbox: React.FC = () => {
         }
       }
     } catch (e) {
-      console.warn('Market fetch error:', e);
+      console.warn('Market fetch error (using static NISM fallback quotes):', e);
     }
   };
 
@@ -77,15 +102,103 @@ export const TradingSandbox: React.FC = () => {
         setOrderMessage(`❌ Error: ${data.detail || data.message || 'Order failed'}`);
       }
     } catch (err: any) {
-      setOrderMessage(`❌ Trade error: ${err.message}`);
+      // Local fallback simulation when backend is offline
+      const tradeTotal = selectedStock.price * quantity;
+      setPortfolio(prev => {
+        if (!prev) return DEFAULT_PORTFOLIO;
+        let newCash = prev.cash_balance;
+        let newPositions = [...prev.positions];
+        const existingIdx = newPositions.findIndex(p => p.symbol === selectedStock.symbol);
+
+        if (side === 'BUY') {
+          if (newCash < tradeTotal) {
+            setOrderMessage(`❌ Order failed: Insufficient cash balance`);
+            return prev;
+          }
+          newCash -= tradeTotal;
+          if (existingIdx >= 0) {
+            const p = newPositions[existingIdx];
+            const newQty = p.quantity + quantity;
+            const newInvested = p.invested_value + tradeTotal;
+            const newAvg = newInvested / newQty;
+            const currentVal = newQty * selectedStock.price;
+            newPositions[existingIdx] = {
+              ...p,
+              quantity: newQty,
+              avg_price: newAvg,
+              invested_value: newInvested,
+              current_price: selectedStock.price,
+              current_value: currentVal,
+              unrealized_pnl: currentVal - newInvested,
+              unrealized_pnl_pct: ((currentVal - newInvested) / newInvested) * 100
+            };
+          } else {
+            newPositions.push({
+              symbol: selectedStock.symbol,
+              name: selectedStock.name,
+              quantity: quantity,
+              avg_price: selectedStock.price,
+              current_price: selectedStock.price,
+              invested_value: tradeTotal,
+              current_value: tradeTotal,
+              unrealized_pnl: 0,
+              unrealized_pnl_pct: 0
+            });
+          }
+        } else {
+          if (existingIdx < 0 || newPositions[existingIdx].quantity < quantity) {
+            setOrderMessage(`❌ Order failed: Insufficient holdings quantity`);
+            return prev;
+          }
+          newCash += tradeTotal;
+          const p = newPositions[existingIdx];
+          const newQty = p.quantity - quantity;
+          if (newQty === 0) {
+            newPositions.splice(existingIdx, 1);
+          } else {
+            const newInvested = p.avg_price * newQty;
+            const currentVal = newQty * selectedStock.price;
+            newPositions[existingIdx] = {
+              ...p,
+              quantity: newQty,
+              invested_value: newInvested,
+              current_value: currentVal,
+              unrealized_pnl: currentVal - newInvested,
+              unrealized_pnl_pct: ((currentVal - newInvested) / newInvested) * 100
+            };
+          }
+        }
+
+        const totalInvested = newPositions.reduce((sum, item) => sum + item.invested_value, 0);
+        const totalCurrentVal = newPositions.reduce((sum, item) => sum + item.current_value, 0);
+        const netWorth = newCash + totalCurrentVal;
+        const totalPnl = totalCurrentVal - totalInvested;
+        setOrderMessage(`✅ ${side} order executed for ${quantity} shares of ${selectedStock.symbol} (Sandbox)`);
+
+        return {
+          ...prev,
+          cash_balance: newCash,
+          invested_amount: totalInvested,
+          total_portfolio_value: netWorth,
+          total_unrealized_pnl: totalPnl,
+          total_unrealized_pnl_pct: totalInvested > 0 ? (totalPnl / totalInvested) * 100 : 0,
+          trades_count: prev.trades_count + 1,
+          positions: newPositions
+        };
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleReset = async () => {
-    await fetch('/api/portfolio/reset', { method: 'POST' });
-    fetchPortfolio();
+    try {
+      await fetch('/api/portfolio/reset', { method: 'POST' });
+      fetchPortfolio();
+    } catch {
+      setPortfolio(DEFAULT_PORTFOLIO);
+      setOrderMessage('Portfolio reset to ₹10,00,000 virtual cash (Sandbox)');
+    }
   };
 
   return (
