@@ -147,6 +147,7 @@ export function App() {
           <VoiceAIPage
             onTriggerLab={handleLaunchLab}
             onNavigate={setCurrentPage}
+            activeLab={activeLab}
           />
         )}
 

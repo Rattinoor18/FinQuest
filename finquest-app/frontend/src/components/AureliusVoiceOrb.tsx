@@ -132,12 +132,21 @@ export const AureliusVoiceOrb: React.FC<AureliusVoiceOrbProps> = ({
     setIsThinking(true);
 
     try {
-      // Call backend API
-      const res = await fetch('/api/voice/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, current_lab: activeLab })
-      });
+      // Call backend API (try relative endpoint first, fallback to localhost port 8000)
+      let res: Response;
+      try {
+        res = await fetch('/api/voice/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, current_lab: activeLab })
+        });
+      } catch {
+        res = await fetch('http://127.0.0.1:8000/api/voice/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, current_lab: activeLab })
+        });
+      }
 
       if (!res.ok) throw new Error('API failed');
       const data: VoiceResponse = await res.json();
