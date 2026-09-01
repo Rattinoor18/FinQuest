@@ -298,19 +298,38 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({
                 </div>
               </div>
 
-              <div className="lg:col-span-6 oreal-card p-6 rounded-3xl flex flex-col items-center justify-center">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-slate-400 mb-3">
-                  Cashflow Distribution Chart
-                </h3>
-                <div className="w-full h-52">
+              <div className="lg:col-span-6 oreal-card p-6 rounded-3xl flex flex-col justify-between space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 font-mono text-xs">
+                  <span className="text-slate-400">SAVINGS VELOCITY RATING:</span>
+                  <span className={`font-bold px-2 py-0.5 rounded-full ${
+                    investPct >= 30 ? 'bg-emerald-500/20 text-emerald-400' :
+                    investPct >= 20 ? 'bg-cyan-500/20 text-cyan-400' :
+                    investPct >= 10 ? 'bg-amber-500/20 text-amber-400' :
+                    'bg-rose-500/20 text-rose-400'
+                  }`}>
+                    {investPct >= 30 ? 'EXCELLENT [Grade A+]' :
+                     investPct >= 20 ? 'HEALTHY [Grade A]' :
+                     investPct >= 10 ? 'MODERATE [Grade B]' :
+                     'VULNERABLE [Grade C]'}
+                  </span>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121214] border border-white/10 text-xs text-left">
+                  <span className="text-slate-400 block font-mono text-[10px] uppercase">6-Month Emergency Fund Target (Needs × 6):</span>
+                  <span className="text-2xl font-mono font-black text-cyan-400">
+                    ₹{(needsVal * 6).toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                <div className="w-full h-40">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={budgetPieData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={55}
-                        outerRadius={80}
+                        innerRadius={45}
+                        outerRadius={65}
                         paddingAngle={5}
                         dataKey="value"
                       >
@@ -403,13 +422,28 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({
               </div>
 
               <div className="lg:col-span-6 oreal-card p-6 rounded-3xl flex flex-col justify-between space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 font-mono text-xs">
+                  <span className="text-slate-400">VERDICT CLASSIFICATION:</span>
+                  <span className={`font-bold px-2.5 py-0.5 rounded-full ${
+                    realReturn < 0 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' :
+                    realReturn <= 4 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                    'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  }`}>
+                    {realReturn < 0 ? 'WEALTH DESTROYER' : realReturn <= 4 ? 'WEALTH PRESERVER' : 'WEALTH CREATOR'}
+                  </span>
+                </div>
+
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-xs font-mono">
                   <div className="flex justify-between text-slate-300">
                     <span>Nominal FD Rate:</span>
                     <span className="text-white font-bold">+{fdRate.toFixed(2)}%</span>
                   </div>
                   <div className="flex justify-between text-slate-300">
-                    <span>Post-Tax Rate ({taxSlab}% slab):</span>
+                    <span>Tax Drag ({taxSlab}% slab):</span>
+                    <span className="text-rose-400 font-bold">-{(fdRate * (taxSlab / 100)).toFixed(2)}%</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>Post-Tax Nominal Rate:</span>
                     <span className="text-amber-400 font-bold">+{postTaxNominal.toFixed(2)}%</span>
                   </div>
                   <div className="flex justify-between text-slate-300">
@@ -420,12 +454,12 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({
                     realReturn >= 0 ? 'text-emerald-400' : 'text-rose-400'
                   }`}>
                     <span>REAL PURCHASING POWER:</span>
-                    <span>{realReturn >= 0 ? `+${realReturn.toFixed(2)}%` : `${realReturn.toFixed(2)}% / yr`}</span>
+                    <span>{realReturn >= 0 ? `+${realReturn.toFixed(2)}% / yr` : `${realReturn.toFixed(2)}% / yr`}</span>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#121214] border border-white/10 text-xs">
-                  <span className="text-slate-400 block font-mono text-[10px]">10-YEAR ₹1,00,000 REAL PURCHASING POWER:</span>
+                <div className="p-4 rounded-2xl bg-[#121214] border border-white/10 text-xs text-left">
+                  <span className="text-slate-400 block font-mono text-[10px] uppercase">10-Year ₹1,00,000 Real Purchasing Power Projection:</span>
                   <span className={`text-2xl font-mono font-black ${
                     realPurchasingPower10y >= initialCorpus ? 'text-emerald-400' : 'text-rose-400'
                   }`}>
@@ -504,18 +538,22 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({
               </div>
 
               <div className="lg:col-span-7 oreal-card p-6 rounded-3xl flex flex-col justify-between">
-                <div className="grid grid-cols-3 gap-3 mb-4 text-center font-mono">
+                <div className="grid grid-cols-4 gap-3 mb-4 text-center font-mono">
                   <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                    <span className="text-[10px] text-slate-400 block">INVESTED</span>
-                    <span className="text-sm font-bold text-white">₹{totalInvested.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-slate-400 block uppercase">Total Invested</span>
+                    <span className="text-xs font-bold text-white">₹{totalInvested.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="text-[10px] text-emerald-400 block">WEALTH GAIN</span>
-                    <span className="text-sm font-bold text-emerald-400">₹{wealthGain.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-emerald-400 block uppercase">Wealth Gain</span>
+                    <span className="text-xs font-bold text-emerald-400">₹{wealthGain.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                    <span className="text-[10px] text-amber-300 block">FINAL CORPUS</span>
-                    <span className="text-sm font-black text-amber-300">₹{sipFutureVal.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-amber-300 block uppercase">Final Corpus</span>
+                    <span className="text-xs font-black text-amber-300">₹{sipFutureVal.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                    <span className="text-[10px] text-rose-400 block uppercase">5-Yr Delay Loss</span>
+                    <span className="text-xs font-bold text-rose-400">-₹{delayLoss.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 

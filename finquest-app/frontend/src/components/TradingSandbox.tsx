@@ -13,11 +13,17 @@ import {
 import { StockQuote, PortfolioSummary } from '../types';
 
 const DEFAULT_QUOTES: StockQuote[] = [
-  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd', price: 2980.50, change: 42.50, change_pct: 1.45, open: 2945.0, high: 3010.0, low: 2940.0, prev_close: 2938.0, volume: 5400200, category: 'EQUITY' },
-  { symbol: 'TCS', name: 'Tata Consultancy Services', price: 4210.00, change: -27.50, change_pct: -0.65, open: 4240.0, high: 4250.0, low: 4180.0, prev_close: 4237.5, volume: 2100400, category: 'EQUITY' },
-  { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd', price: 1640.25, change: 13.80, change_pct: 0.85, open: 1628.0, high: 1655.0, low: 1625.0, prev_close: 1626.45, volume: 8900100, category: 'EQUITY' },
-  { symbol: 'INFY', name: 'Infosys Ltd', price: 1890.75, change: 38.90, change_pct: 2.10, open: 1855.0, high: 1910.0, low: 1850.0, prev_close: 1851.85, volume: 4300900, category: 'EQUITY' },
-  { symbol: 'NIFTY50', name: 'NIFTY 50 Index Fund', price: 24550.00, change: 127.00, change_pct: 0.52, open: 24430.0, high: 24620.0, low: 24410.0, prev_close: 24423.0, volume: 15400000, category: 'INDEX' }
+  { symbol: 'NIFTY 50', name: 'NIFTY 50 Benchmark Index', price: 24850.00, change: 154.20, change_pct: 0.62, open: 24700.0, high: 24910.0, low: 24680.0, prev_close: 24695.8, volume: 19500000, category: 'INDEX' },
+  { symbol: 'SENSEX', name: 'BSE SENSEX Index', price: 81500.00, change: 480.50, change_pct: 0.59, open: 81020.0, high: 81650.0, low: 80950.0, prev_close: 81019.5, volume: 18200000, category: 'INDEX' },
+  { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', price: 2980.50, change: 42.50, change_pct: 1.45, open: 2945.0, high: 3010.0, low: 2940.0, prev_close: 2938.0, volume: 5400200, category: 'LargeCap' },
+  { symbol: 'TCS', name: 'Tata Consultancy Services', price: 4210.00, change: -27.50, change_pct: -0.65, open: 4240.0, high: 4250.0, low: 4180.0, prev_close: 4237.5, volume: 2100400, category: 'LargeCap' },
+  { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd.', price: 1660.25, change: 13.80, change_pct: 0.84, open: 1648.0, high: 1675.0, low: 1645.0, prev_close: 1646.45, volume: 8900100, category: 'LargeCap' },
+  { symbol: 'INFY', name: 'Infosys Ltd.', price: 1880.75, change: 38.90, change_pct: 2.11, open: 1845.0, high: 1900.0, low: 1840.0, prev_close: 1841.85, volume: 4300900, category: 'LargeCap' },
+  { symbol: 'TATAMOTORS', name: 'Tata Motors Passenger & EV Ltd.', price: 1080.00, change: 24.50, change_pct: 2.32, open: 1058.0, high: 1095.0, low: 1052.0, prev_close: 1055.50, volume: 6800100, category: 'LargeCap' },
+  { symbol: 'ZOMATO', name: 'Zomato Ltd. / Blinkit', price: 260.40, change: -4.80, change_pct: -1.81, open: 265.0, high: 268.5, low: 258.0, prev_close: 265.20, volume: 12400000, category: 'MidCap' },
+  { symbol: 'ITC', name: 'ITC Ltd.', price: 505.20, change: 3.40, change_pct: 0.68, open: 502.0, high: 508.0, low: 501.0, prev_close: 501.80, volume: 3900500, category: 'LargeCap' },
+  { symbol: 'GOLD ETF', name: 'Nippon India ETF Gold BeES', price: 65.50, change: 0.45, change_pct: 0.69, open: 65.10, high: 65.80, low: 65.00, prev_close: 65.05, volume: 1500400, category: 'Commodity' },
+  { symbol: 'NIFTYBEES', name: 'Nippon India Nifty 50 ETF', price: 268.00, change: 1.60, change_pct: 0.60, open: 266.5, high: 269.0, low: 266.0, prev_close: 266.40, volume: 4500000, category: 'ETF' }
 ];
 
 const DEFAULT_PORTFOLIO: PortfolioSummary = {
