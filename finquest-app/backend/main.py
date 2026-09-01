@@ -1,6 +1,10 @@
 """
 FinQuest - NISM Financial Literacy & AI Voice Co-Pilot API (Team Aurelius)
 """
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional, Dict, Any
