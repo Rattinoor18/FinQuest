@@ -13,7 +13,9 @@ import {
   Bot,
   Terminal,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { PageRoute } from '../types';
 
@@ -23,6 +25,8 @@ interface RibbonHeaderProps {
   xp: number;
   healthScore: number;
   completedModulesCount: number;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 export const RibbonHeader: React.FC<RibbonHeaderProps> = ({
@@ -31,6 +35,8 @@ export const RibbonHeader: React.FC<RibbonHeaderProps> = ({
   xp,
   healthScore,
   completedModulesCount,
+  theme,
+  onToggleTheme
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -49,16 +55,16 @@ export const RibbonHeader: React.FC<RibbonHeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#080C14]/40 backdrop-blur-md border-b border-white/10 transition-all">
-      {/* Top Technical Status Ribbon (Transparent background) */}
-      <div className="w-full bg-transparent border-b border-white/10 text-[10px] font-mono-tech text-slate-400 py-1.5 px-4 sm:px-8 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-[#080C14]/40 dark:bg-[#080C14]/40 bg-white/70 backdrop-blur-md border-b border-white/10 dark:border-white/10 border-slate-200 transition-all">
+      {/* Top Technical Status Ribbon */}
+      <div className="w-full bg-transparent border-b border-white/10 dark:border-white/10 border-slate-200 text-[10px] font-mono-tech text-slate-400 py-1.5 px-4 sm:px-8 flex items-center justify-between">
         <div className="flex items-center gap-6 whitespace-nowrap overflow-hidden">
           <span className="text-cyan-400 font-bold flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-cyan-400 rounded-none animate-pulse" />
             // SHARPLINK GAMING & DATA ENGINE
           </span>
           <span className="hidden md:inline text-slate-600">|</span>
-          <span className="hidden md:inline text-slate-300">
+          <span className="hidden md:inline text-slate-300 dark:text-slate-300 text-slate-600">
             NISM BHARAT CERTIFIED FINANCIAL LITERACY PLATFORM
           </span>
           <span className="hidden lg:inline text-slate-600">|</span>
@@ -85,7 +91,7 @@ export const RibbonHeader: React.FC<RibbonHeaderProps> = ({
             FQ
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-2xl tracking-tighter text-white font-sans uppercase leading-none">
+            <span className="font-extrabold text-2xl tracking-tighter dark:text-white text-slate-900 font-sans uppercase leading-none">
               FinQuest<span className="text-cyan-400 font-mono-tech text-xs ml-1 font-bold">.AI</span>
             </span>
             <span className="text-[9px] font-mono-tech text-slate-400 tracking-widest uppercase">
@@ -103,7 +109,7 @@ export const RibbonHeader: React.FC<RibbonHeaderProps> = ({
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`transition-all hover:text-cyan-300 relative py-1 flex items-center gap-1.5 ${
-                  isActive ? 'text-white font-bold' : 'text-slate-400'
+                  isActive ? 'dark:text-white text-slate-900 font-bold' : 'text-slate-400'
                 }`}
               >
                 <span className="text-[9px] text-blue-500 font-bold">{item.code}</span>
@@ -116,8 +122,17 @@ export const RibbonHeader: React.FC<RibbonHeaderProps> = ({
           })}
         </nav>
 
-        {/* Right CTA Action */}
+        {/* Right CTA Action & Theme Toggle */}
         <div className="hidden sm:flex items-center gap-3">
+          <button
+            onClick={onToggleTheme}
+            className="p-2 rounded-xl border border-white/10 dark:border-white/10 border-slate-300 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-200 hover:text-cyan-400 transition-all flex items-center gap-1.5 text-xs font-mono-tech"
+            title="Toggle Light/Dark Theme"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            <span className="hidden md:inline uppercase text-[10px]">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+          </button>
+
           <button
             onClick={() => handleNavClick('voice-ai')}
             className="sharplink-btn-pill flex items-center gap-2"

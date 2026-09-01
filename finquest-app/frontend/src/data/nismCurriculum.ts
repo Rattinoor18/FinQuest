@@ -9,6 +9,7 @@ export const NISM_DATA: NISMModule[] = [
     icon: "Wallet",
     color: "from-blue-500 to-cyan-400",
     estimated_mins: 25,
+    linked_lab_id: "budgeting",
     lessons: [
       {
         id: "m1-l1",
@@ -84,6 +85,7 @@ India leads the globe with **Unified Payments Interface (UPI)** managed by NPCI.
     icon: "PieChart",
     color: "from-emerald-500 to-teal-400",
     estimated_mins: 35,
+    linked_lab_id: "real_return",
     lessons: [
       {
         id: "m2-l1",
@@ -177,6 +179,7 @@ Credit cards charge **3.5% to 3.8% monthly (42% - 48% APR)**. Paying only the "M
     icon: "TrendingUp",
     color: "from-purple-500 to-indigo-400",
     estimated_mins: 30,
+    linked_lab_id: "sip_compounding",
     lessons: [
       {
         id: "m3-l1",
@@ -237,6 +240,7 @@ When the market drops, your fixed monthly SIP buys MORE units at discount prices
     icon: "ShieldCheck",
     color: "from-amber-500 to-orange-400",
     estimated_mins: 30,
+    linked_lab_id: "debt_trap",
     lessons: [
       {
         id: "m4-l1",
@@ -297,6 +301,7 @@ A liquid buffer protecting you against sudden job loss, medical emergencies, or 
     icon: "AlertTriangle",
     color: "from-rose-500 to-red-400",
     estimated_mins: 35,
+    linked_lab_id: "scam_radar",
     lessons: [
       {
         id: "m5-l1",

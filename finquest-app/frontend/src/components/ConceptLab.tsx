@@ -17,12 +17,21 @@ import {
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { LabType } from '../types';
 
+import { Lock } from 'lucide-react';
+
 interface ConceptLabProps {
   activeLab: LabType;
   onSelectLab: (lab: LabType) => void;
+  unlockedLabs?: LabType[];
+  completedModules?: string[];
 }
 
-export const ConceptLab: React.FC<ConceptLabProps> = ({ activeLab, onSelectLab }) => {
+export const ConceptLab: React.FC<ConceptLabProps> = ({ 
+  activeLab, 
+  onSelectLab,
+  unlockedLabs = ['budgeting', 'real_return', 'sip_compounding', 'debt_trap', 'scam_radar', 'insurance_matrix'],
+  completedModules = []
+}) => {
   // 1. Budgeting State
   const [salary, setSalary] = useState<number>(60000);
   const [needsPct, setNeedsPct] = useState<number>(50);
@@ -151,33 +160,39 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({ activeLab, onSelectLab }
   ];
 
   const labsList = [
-    { id: 'budgeting', label: '50/30/20 Budgeting', icon: PieChartIcon },
-    { id: 'real_return', label: 'Real Return vs Inflation', icon: TrendingUp },
-    { id: 'sip_compounding', label: 'SIP & Compounding', icon: Flame },
-    { id: 'debt_trap', label: '42% Debt Trap', icon: CreditCard },
-    { id: 'scam_radar', label: 'Scam & Ponzi Radar', icon: AlertTriangle },
-    { id: 'insurance_matrix', label: 'Insurance Protection', icon: ShieldCheck },
+    { id: 'budgeting', label: '50/30/20 Budgeting', icon: PieChartIcon, reqModule: 'Module 1' },
+    { id: 'real_return', label: 'Real Return vs Inflation', icon: TrendingUp, reqModule: 'Module 2' },
+    { id: 'sip_compounding', label: 'SIP & Compounding', icon: Flame, reqModule: 'Module 3' },
+    { id: 'debt_trap', label: '42% Debt Trap', icon: CreditCard, reqModule: 'Module 4' },
+    { id: 'scam_radar', label: 'Scam & Ponzi Radar', icon: AlertTriangle, reqModule: 'Module 5' },
+    { id: 'insurance_matrix', label: 'Insurance Protection', icon: ShieldCheck, reqModule: 'Module 4' },
   ];
 
+  const currentLabObj = labsList.find(l => l.id === activeLab);
+  const isCurrentLabUnlocked = unlockedLabs.includes(activeLab);
+
   return (
-    <div className="flex flex-col h-full oreal-glass rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-full oreal-glass rounded-3xl border border-white/10 dark:border-white/10 border-slate-200 overflow-hidden shadow-2xl">
       {/* Lab Tabs Header Ribbon */}
-      <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-[#161619]/80 overflow-x-auto gap-3">
+      <div className="px-6 py-4 border-b border-white/10 dark:border-white/10 border-slate-200 flex items-center justify-between bg-[#161619]/80 dark:bg-[#161619]/80 bg-slate-100 overflow-x-auto gap-3">
         <div className="flex items-center gap-2">
           {labsList.map((lab) => {
             const Icon = lab.icon;
             const isSelected = activeLab === lab.id;
+            const isUnlocked = unlockedLabs.includes(lab.id as LabType);
             return (
               <button
                 key={lab.id}
                 onClick={() => onSelectLab(lab.id as LabType)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all uppercase tracking-wider ${
                   isSelected
-                    ? 'bg-white text-black font-bold shadow-md'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-white/5'
+                    ? 'bg-cyan-500 text-black font-bold shadow-md'
+                    : isUnlocked
+                    ? 'text-slate-300 dark:text-slate-300 text-slate-700 hover:text-cyan-400 hover:bg-white/5 border border-white/5'
+                    : 'text-slate-500 bg-slate-800/40 border border-slate-800 opacity-70'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                {!isUnlocked ? <Lock className="w-3 h-3 text-amber-400" /> : <Icon className="w-3.5 h-3.5" />}
                 <span>{lab.label}</span>
               </button>
             );
@@ -187,6 +202,20 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({ activeLab, onSelectLab }
 
       {/* Lab Content Area */}
       <div className="flex-1 p-6 lg:p-8 overflow-y-auto">
+        {!isCurrentLabUnlocked ? (
+          <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-xl">
+              <Lock className="w-8 h-8 animate-bounce" />
+            </div>
+            <h2 className="text-2xl font-bold text-white dark:text-white text-slate-900">
+              Concept Lab Locked
+            </h2>
+            <p className="text-sm text-slate-400 max-w-md">
+              Complete <span className="text-cyan-400 font-bold">{currentLabObj?.reqModule}</span> in NISM Academy to unlock this interactive simulator and advance to the next learning stage!
+            </p>
+          </div>
+        ) : (
+          <>
         {/* ================= LAB 1: 50/30/20 BUDGETING ================= */}
         {activeLab === 'budgeting' && (
           <div className="space-y-6">
@@ -675,6 +704,8 @@ export const ConceptLab: React.FC<ConceptLabProps> = ({ activeLab, onSelectLab }
               </div>
             </div>
           </div>
+        )}
+        </>
         )}
       </div>
     </div>

@@ -1,5 +1,5 @@
 """
-Aurelius AI Financial Voice & Literacy Mentor Engine
+Coach Aurelius - Aurelius Intelligence Financial Voice & Literacy Mentor Engine
 """
 import os
 import re
@@ -10,7 +10,8 @@ from calculators import lab_engine
 
 class AureliusAIEngine:
     def __init__(self):
-        self.coach_name = "Aurelius"
+        self.coach_name = "Coach Aurelius"
+        self.brand_name = "Aurelius Intelligence"
         self.api_key = os.getenv("GEMINI_API_KEY", "")
         self.client = None
         if self.api_key:
@@ -20,6 +21,30 @@ class AureliusAIEngine:
                 self.client = genai.GenerativeModel("gemini-1.5-flash")
             except Exception:
                 self.client = None
+
+    def is_financial_query(self, query: str) -> bool:
+        """
+        Check if query is within the financial, investing, trading, or economics domain.
+        """
+        q = query.lower().strip()
+        non_financial_keywords = [
+            "recipe", "cook", "movie", "actor", "sports", "cricket", "football",
+            "weather", "python code", "javascript", "react", "html", "fix my car",
+            "medical diagnosis", "song", "lyrics", "joke"
+        ]
+        financial_keywords = [
+            "money", "invest", "stock", "nifty", "share", "market", "trade", "portfolio",
+            "cash", "pnl", "return", "cagr", "sip", "fd", "rd", "bond", "mutual fund",
+            "index", "budget", "salary", "expense", "debt", "emi", "credit card", "loan",
+            "inflation", "tax", "cibil", "scam", "fraud", "upi", "term insurance", "ulip",
+            "endowment", "nism", "wealth", "asset", "liability", "dividend", "finance", "aurelius"
+        ]
+
+        if any(kw in q for kw in financial_keywords):
+            return True
+        if any(kw in q for kw in non_financial_keywords) and not any(kw in q for kw in financial_keywords):
+            return False
+        return True
 
     def assess_behavior(self, portfolio: PortfolioSummary) -> BehavioralRiskAssessment:
         flags = []
@@ -57,17 +82,6 @@ class AureliusAIEngine:
             })
             score -= 8
 
-        # 3. High Volatility Exposure
-        high_vol_count = sum(1 for p in portfolio.positions if p.symbol in ["TATAMOTORS", "ZOMATO", "PAYTM"])
-        if high_vol_count >= 2:
-            flags.append({
-                "type": "VOLATILITY_EXPOSURE",
-                "severity": "MEDIUM",
-                "title": "High Beta / Volatility Tilt",
-                "detail": "You are heavily allocated to high-volatility growth stocks. Ensure you balance with broad NIFTY 50 Index funds."
-            })
-            score -= 10
-
         score = max(20, min(100, score))
         risk_level = "Low" if score >= 80 else "Moderate" if score >= 60 else "High" if score >= 40 else "Critical"
 
@@ -91,115 +105,133 @@ class AureliusAIEngine:
 
     def process_voice_query(self, message: str, context: Optional[Dict] = None) -> Dict[str, Any]:
         """
-        Processes spoken voice query, provides natural spoken response, and triggers synced UI labs.
+        Processes query under Coach Aurelius branding with financial domain scoping and context awareness.
         """
         msg_lower = message.lower().strip()
-        
-        # Intent Detection for Live UI Sync
+
+        # Enforce Financial Domain Scoping
+        if not self.is_financial_query(msg_lower):
+            return {
+                "coach": self.coach_name,
+                "speech_text": "I am Coach Aurelius, your dedicated financial education and investment mentor. I can only answer questions related to personal finance, investing, markets, paper trading, and NISM modules.",
+                "markdown_reply": """### 🛡️ Coach Aurelius Scope Notice
+I am **Coach Aurelius** (powered by *Aurelius Intelligence*), your specialized financial education and investment co-pilot.
+
+I am strictly scoped to the **financial domain** to ensure maximum accuracy and discipline. Please ask me about:
+- **NISM Financial Literacy Modules & Concept Labs**
+- **50/30/20 Budgeting & Emergency Funds**
+- **SIP Compounding & The Rule of 72**
+- **Paper Trading, Portfolio Allocation & Concentration Risk**
+- **Fixed Deposits, Inflation & Real Return**
+- **Scam & Fraud Immunity (UPI PIN Safety, Telegram tipsters)**""",
+                "ui_action": "NONE",
+                "lab_id": None,
+                "suggested_prompts": [
+                    "Explain the 50/30/20 rule",
+                    "How does inflation eat my FD?",
+                    "Analyze my current paper portfolio",
+                    "How to spot financial scams?"
+                ]
+            }
+
         ui_action = "NONE"
         lab_id = None
-        speech_text = ""
-        markdown_reply = ""
-        suggested_prompts = []
 
-        # 1. Budgeting / 50-30-20
-        if any(k in msg_lower for k in ["budget", "50/30/20", "50 30 20", "salary", "expense", "spend"]):
+        # Try real Gemini LLM API if key is set
+        if self.client:
+            try:
+                system_prompt = f"""You are Coach Aurelius, a friendly, authoritative financial education co-pilot built on Aurelius Intelligence.
+Strictly adhere to these guidelines:
+1. Only answer within personal finance, investing, paper trading, economics, risk management, and NISM curriculum.
+2. Incorporate the user context if provided: {context}
+3. Maintain financial education clarity. Never provide regulated individual advice; emphasize financial literacy principles.
+4. Keep spoken responses concise and structured in markdown."""
+                prompt = f"{system_prompt}\n\nUser Question: {message}"
+                response = self.client.generate_content(prompt)
+                if response and response.text:
+                    return {
+                        "coach": self.coach_name,
+                        "speech_text": f"Coach Aurelius here. {response.text[:150]}...",
+                        "markdown_reply": response.text,
+                        "ui_action": "NONE",
+                        "lab_id": None,
+                        "suggested_prompts": ["Tell me more about risk", "Explain Rule of 72", "How to budget my salary?"]
+                    }
+            except Exception:
+                pass
+
+        # Fallback structured NISM mentor responses
+        if any(k in msg_lower for k in ["budget", "50/30/20", "50 30 20", "salary", "expense"]):
             ui_action = "OPEN_LAB"
             lab_id = "budgeting"
-            speech_text = "Opening the 50/30/20 Budgeting Lab on your screen. The golden rule is 50% for Needs, 30% for Wants, and always invest 20% on the day your salary arrives."
-            markdown_reply = """### The 50/30/20 Budgeting Rule (NISM Module 2)
-The smartest way to build wealth without depriving yourself:
+            speech_text = "Opening the 50/30/20 Budgeting Lab. 50% for Needs, 30% for Wants, and invest 20% on the day your salary arrives."
+            markdown_reply = """### Coach Aurelius on 50/30/20 Budgeting (NISM Module 2)
+The gold standard framework for cashflow management:
 - **50% Needs:** Rent, groceries, electricity, essential EMIs & health insurance.
-- **30% Wants:** Dining out, movies, gadgets, weekend trips.
-- **20% Wealth Building:** Emergency fund accumulation & Index Fund SIPs.
+- **30% Wants:** Dining out, entertainment, gadgets, weekend trips.
+- **20% Wealth Building:** Emergency fund accumulation & automated Index SIPs.
 
-*💡 Pro-Tip from Aurelius: Automate your 20% investment on Salary Day before spending on lifestyle.*"""
-            suggested_prompts = ["What if my rent is 40% of salary?", "How much emergency fund do I need?", "Explain rule of 72"]
+*💡 Golden Rule: Automate your 20% investment on Salary Day before spending on lifestyle.*"""
+            suggested_prompts = ["What if my rent is 40% of salary?", "How much emergency fund do I need?", "Explain Rule of 72"]
 
-        # 2. Fixed Deposit / Inflation / Real Return
-        elif any(k in msg_lower for k in ["fd", "fixed deposit", "inflation", "real return", "savings account", "rd"]):
+        elif any(k in msg_lower for k in ["fd", "fixed deposit", "inflation", "real return"]):
             ui_action = "OPEN_LAB"
             lab_id = "real_return"
-            speech_text = "I've launched the Real Return and Inflation Lab. A 7% Fixed Deposit sounds safe, but after 30% tax and 6% inflation, your real wealth shrinks by about 1% every year."
-            markdown_reply = """### The Real Return Math (NISM Module 2 & 3)
-A nominal 7.0% FD is great for emergency safety, but cannot beat long-term inflation:
+            speech_text = "Opening the Real Return Lab. A 7% FD gives only 4.9% post-tax in 30% bracket. Against 6% inflation, real wealth shrinks by 1.1% per year."
+            markdown_reply = """### Coach Aurelius on Real Returns & Inflation (NISM Module 2)
+Fixed Deposits offer capital safety but lose purchasing power against inflation:
 - **Nominal FD Interest:** `+7.0%`
-- **Tax Drag (30% Slab):** `-2.1%` (Post-tax: `4.9%`)
-- **Annual Inflation:** `-6.0%`
-- **Net Real Purchasing Power:** `🔴 -1.1% per year!`
+- **Post-Tax Return (30% Slab):** `+4.9%`
+- **Annual Inflation Rate:** `-6.0%`
+- **Real Net Growth:** `🔴 -1.1% per year!`
 
-*💡 Aurelius Rule: Use FDs for 0-3 year safety; use Equities/PPF for >5 year compounding.*"""
+*💡 Strategy: Use FDs for 0-3 year liquid safety; use Equities for >5 year compounding.*"""
             suggested_prompts = ["How does SIP beat inflation?", "What is Rule of 72?", "Is PPF tax free?"]
 
-        # 3. SIP / Compounding / Rule of 72 / Mutual Funds
-        elif any(k in msg_lower for k in ["sip", "compound", "rule of 72", "mutual fund", "index fund", "invest", "delay"]):
+        elif any(k in msg_lower for k in ["sip", "compound", "rule of 72", "mutual fund"]):
             ui_action = "OPEN_LAB"
             lab_id = "sip_compounding"
-            speech_text = "Displaying the 30-Year Compounding Sandbox. Starting a ₹5,000 monthly SIP in your 20s can build over 5.9 Crores, while a 10-year delay costs you over 4 Crores in lost compounding."
-            markdown_reply = """### The Power of Compounding & Rule of 72 (NISM Module 3)
-- **The Rule of 72:** Divide 72 by your annual return to see how fast money doubles!
-  - At **12% (Nifty 50):** Capital doubles every **6 Years**.
-  - At **6% (FD):** Capital doubles every **12 Years**.
-- **The 10-Year Delay Cost:**
-  - Starting ₹5,000/mo at **Age 20** (12% CAGR till 60): **₹5.94 Crores**
-  - Starting ₹5,000/mo at **Age 30**: **₹1.76 Crores**
-  - *Delay Penalty:* **₹4.18 Crores lost!**
+            speech_text = "Opening the 30-Year Compounding Sandbox. Starting early in your twenties is the single biggest wealth multiplier."
+            markdown_reply = """### Coach Aurelius on Compounding & Rule of 72 (NISM Module 3)
+- **Rule of 72:** Divide 72 by expected return rate to find double-time:
+  - At **12% CAGR (Nifty 50):** Capital doubles every **6 Years**.
+- **The Cost of Delay:** Starting ₹5,000/mo at age 20 gives ₹5.94 Crores vs ₹1.76 Crores at age 30!
 
-*💡 Aurelius Rule: Always choose 'Direct Plan - Growth' mutual funds to save 1% distributor commission.*"""
+*💡 Strategy: Always select 'Direct Plan - Growth' options to avoid distributor commission drag.*"""
             suggested_prompts = ["Direct vs Regular funds?", "What is Nifty 50?", "Explain debt snowball"]
 
-        # 4. Debt / Credit Card / Loan / EMI
-        elif any(k in msg_lower for k in ["debt", "credit card", "loan", "emi", "cibil", "minimum due"]):
+        elif any(k in msg_lower for k in ["debt", "credit card", "loan", "emi"]):
             ui_action = "OPEN_LAB"
             lab_id = "debt_trap"
-            speech_text = "Opening the Debt Trap and Credit Card Payoff Lab. Credit cards charge up to 42% annual interest. Paying only the minimum due can take 15 years to pay off a single gadget."
-            markdown_reply = """### The Revolving Credit Card Trap (NISM Module 2)
-Credit card interest is an extreme wealth destroyer:
-- **APR:** `3.5% to 3.8% monthly` = `42% to 48% per year`.
-- **The Minimum Due Trap:** Paying only 5% minimum due keeps 95% balance compounding at 42% APR.
-- **Good Debt vs Bad Debt:** Good debt builds earning assets (Education/Home); bad debt finances depreciating lifestyle toys.
-
-*💡 Aurelius Rule: Always pay 100% of Total Amount Due before the statement due date.*"""
+            speech_text = "Opening the Debt Trap Lab. Credit cards charge up to 42% APR. Paying minimum due keeps you trapped for over 15 years."
+            markdown_reply = """### Coach Aurelius on Debt Discipline (NISM Module 2)
+- **Revolving Credit Card Rate:** 3.5% monthly = **42% to 48% APR**.
+- **Minimum Due Trap:** Paying only 5% minimum due leaves 95% compounding against you.
+- **Rule:** Always pay 100% of Total Amount Due before the statement due date."""
             suggested_prompts = ["How to improve CIBIL score?", "Explain 50/30/20 rule", "How to build emergency fund?"]
 
-        # 5. Scams / Telegram / WhatsApp / Fraud / Ponzi / UPI
-        elif any(k in msg_lower for k in ["scam", "fraud", "telegram", "whatsapp", "ponzi", "guaranteed", "tipster", "upi"]):
+        elif any(k in msg_lower for k in ["scam", "fraud", "telegram", "whatsapp", "upi"]):
             ui_action = "OPEN_LAB"
             lab_id = "scam_radar"
-            speech_text = "I've pulled up the Scam Immunity Radar. The number one rule in Indian finance: legitimate SEBI registered advisors never guarantee returns, and you never enter your UPI PIN to receive money."
-            markdown_reply = """### The Scam Immunity Playbook (NISM Module 5)
-#### 5 Red Flags of Every Financial Scam:
-1. **The Word 'Guaranteed' on High Returns:** No legitimate market asset guarantees 10% monthly or 2% daily.
-2. **UPI PIN for Receiving Money:** You **NEVER** enter your PIN to get cashbacks or refunds.
-3. **VIP Telegram / WhatsApp Channels:** Unregulated pump-and-dump operators.
-4. **Task-Based Part-Time Jobs:** "Like YouTube videos for ₹2,000" leading to crypto deposit traps.
-5. **Emergency Action:** In case of cyber fraud, immediately call **1930** within the golden hour to freeze funds!"""
+            speech_text = "Opening the Scam Immunity Radar. Remember: You NEVER enter your UPI PIN to receive money, and SEBI registered advisors never guarantee returns."
+            markdown_reply = """### Coach Aurelius on Scam Immunity (NISM Module 5)
+1. **Never enter UPI PIN to receive money.**
+2. **Beware of 'Guaranteed' return promises.**
+3. **Avoid VIP Telegram option call channels.**
+4. **Report cyber fraud immediately at 1930.**"""
             suggested_prompts = ["How to verify SEBI registration?", "What is RBI Ombudsman?", "Explain term insurance"]
 
-        # 6. Insurance / Safety Net / Emergency
-        elif any(k in msg_lower for k in ["insurance", "term life", "ulip", "health insurance", "emergency fund", "endowment"]):
-            ui_action = "OPEN_LAB"
-            lab_id = "insurance_matrix"
-            speech_text = "Opening the Insurance Protection Matrix. Never mix investment with insurance. Buy pure term life for 15 times your income, and invest the remaining difference into index funds."
-            markdown_reply = """### Insurance Protection Blueprint (NISM Module 4)
-- **The Golden Rule:** Never buy ULIPs or Endowment plans with low cover and 4% returns.
-- **Pure Term Insurance:** ₹1.5 Crore cover costs only ~₹1,000/month for a 25-year-old.
-- **Health Insurance:** Crucial individual cover of ₹10L - ₹25L with Super Top-Up to prevent hospital bills from wiping out savings.
-- **Emergency Fund:** 3 to 6 months of essential living expenses parked in liquid savings / Sweep-in FD."""
-            suggested_prompts = ["Why are ULIPs bad?", "How much term cover do I need?", "Explain 50/30/20 rule"]
-
-        # 7. Default Conversational / Socratic Mentor response
         else:
-            speech_text = f"I am Aurelius, your NISM financial literacy mentor. You asked: {message}. I can guide you through budgeting, compounding, debt traps, inflation, and fraud protection."
-            markdown_reply = f"""### Aurelius Financial Guidance
+            speech_text = f"Coach Aurelius here. Regarding {message}: I can guide you through budgeting, real returns, paper trading, and NISM modules."
+            markdown_reply = f"""### Coach Aurelius Financial Guidance
 You asked: **"{message}"**
 
-As your NISM-certified financial co-pilot, here are 3 foundational pillars to explore:
-1. **Budgeting & Cashflow (50/30/20):** Secure your savings rate first.
-2. **Real Returns vs Inflation:** Understand why safe FDs need growth equity balance.
-3. **Compound Wealth via SIP:** Start early to let the Rule of 72 work for you.
+As your financial co-pilot on **Aurelius Intelligence**, here are 3 key pillars to explore:
+1. **50/30/20 Budgeting:** Build a solid savings velocity.
+2. **Real Returns:** Balance fixed deposits with inflation-beating equity index funds.
+3. **Paper Trading Sandbox:** Test order execution with ₹10,00,000 virtual cash.
 
-*Speak into the mic or click any quick prompt below to launch an interactive simulation!*"""
+*Click any prompt below to trigger interactive simulations!*"""
             suggested_prompts = ["Explain the 50/30/20 rule", "How does inflation eat my FD?", "Show me 30-year compounding", "How to spot Telegram scams?"]
 
         return {

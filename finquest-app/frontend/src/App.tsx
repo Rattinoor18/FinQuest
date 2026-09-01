@@ -18,8 +18,29 @@ export function App() {
   const [curriculum, setCurriculum] = useState<NISMModule[]>(NISM_DATA);
   const [completedLessons, setCompletedLessons] = useState<string[]>(['m1-l1', 'm2-l1']);
   const [completedModules, setCompletedModules] = useState<string[]>([]);
+  const [unlockedLabs, setUnlockedLabs] = useState<LabType[]>(['budgeting']);
   const [xp, setXp] = useState<number>(350);
   const [healthScore, setHealthScore] = useState<number>(88);
+
+  // Theme State Persistent in LocalStorage
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('finquest_theme') as 'dark' | 'light') || 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('finquest_theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Modals
   const [quizModule, setQuizModule] = useState<NISMModule | null>(null);
@@ -55,12 +76,18 @@ export function App() {
       setCompletedModules(prev => [...prev, moduleId]);
       setXp(prev => prev + xpEarned);
       setHealthScore(prev => Math.min(100, prev + 3));
+
+      // Unlock linked lab for this completed module
+      const modObj = curriculum.find(m => m.id === moduleId);
+      if (modObj && modObj.linked_lab_id) {
+        setUnlockedLabs(prev => Array.from(new Set([...prev, modObj.linked_lab_id])));
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#060913] text-slate-100 selection:bg-cyan-500 selection:text-black">
-      {/* Orealbank Signature Ribbon Navigation Header */}
+    <div className="min-h-screen flex flex-col bg-[#060913] dark:bg-[#060913] bg-slate-50 text-slate-100 dark:text-slate-100 text-slate-900 selection:bg-cyan-500 selection:text-black transition-colors duration-200">
+      {/* Signature Ribbon Navigation Header */}
       <RibbonHeader
         currentPage={currentPage}
         onNavigate={(page) => {
@@ -70,6 +97,8 @@ export function App() {
         xp={xp}
         healthScore={healthScore}
         completedModulesCount={completedModules.length}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* Multi-Page Route Viewport */}
@@ -107,11 +136,13 @@ export function App() {
             <ConceptLab
               activeLab={activeLab}
               onSelectLab={(lab) => setActiveLab(lab)}
+              unlockedLabs={unlockedLabs}
+              completedModules={completedModules}
             />
           </div>
         )}
 
-        {/* 4. Aurelius Voice AI Studio */}
+        {/* 4. Aurelius Intelligence Studio */}
         {currentPage === 'voice-ai' && (
           <VoiceAIPage
             onTriggerLab={handleLaunchLab}
