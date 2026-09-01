@@ -151,25 +151,29 @@ I am strictly scoped to the **financial domain** to ensure maximum accuracy and 
         # Try real Gemini LLM API if key is set
         if self.client:
             try:
-                system_prompt = f"""You are Coach Aurelius, a friendly, authoritative financial education co-pilot built on Aurelius Intelligence.
-Strictly adhere to these guidelines:
-1. Only answer within personal finance, investing, paper trading, economics, risk management, and NISM curriculum.
-2. Incorporate the user context if provided: {context}
-3. Maintain financial education clarity. Never provide regulated individual advice; emphasize financial literacy principles.
-4. Keep spoken responses concise and structured in markdown."""
+                system_prompt = f"""You are Coach Aurelius (powered by Aurelius Intelligence), an expert AI Co-Pilot and Master Educator.
+You provide clear, highly structured, in-depth, and comprehensive markdown answers to ANY question asked by the user.
+Guidelines:
+1. Provide rich, thorough explanations with examples, key takeaways, and bullet points.
+2. Incorporate user context if available: {context}
+3. Maintain a warm, encouraging, authoritative persona.
+4. Format output in beautifully structured Markdown with headers and emojis."""
                 prompt = f"{system_prompt}\n\nUser Question: {message}"
                 response = self.client.generate_content(prompt)
                 if response and response.text:
+                    # Clean markdown string for speech synthesis
+                    clean_speech = re.sub(r'[*#_`~\[\]]', '', response.text).strip()
+                    speech_snippet = clean_speech[:200] + "..." if len(clean_speech) > 200 else clean_speech
                     return {
                         "coach": self.coach_name,
-                        "speech_text": f"Coach Aurelius here. {response.text[:150]}...",
+                        "speech_text": speech_snippet,
                         "markdown_reply": response.text,
                         "ui_action": "NONE",
                         "lab_id": None,
-                        "suggested_prompts": ["Tell me more about risk", "Explain Rule of 72", "How to budget my salary?"]
+                        "suggested_prompts": ["Tell me more", "Give a practical example", "How do I implement this?"]
                     }
-            except Exception:
-                pass
+            except Exception as e:
+                print("Gemini API execution error:", e)
 
         # Fallback structured NISM mentor responses
         if any(k in msg_lower for k in ["budget", "50/30/20", "50 30 20", "salary", "expense"]):
