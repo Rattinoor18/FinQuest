@@ -15,12 +15,23 @@ class AureliusAIEngine:
         self.api_key = os.getenv("GEMINI_API_KEY", "")
         self.client = None
         if self.api_key:
+            self.set_api_key(self.api_key)
+
+    def set_api_key(self, api_key: str) -> bool:
+        """Sets or updates the Gemini API key at runtime."""
+        self.api_key = api_key.strip()
+        if self.api_key:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=self.api_key)
                 self.client = genai.GenerativeModel("gemini-1.5-flash")
-            except Exception:
+                return True
+            except Exception as e:
+                print("Error initializing Gemini API:", e)
                 self.client = None
+                return False
+        self.client = None
+        return False
 
     def is_financial_query(self, query: str) -> bool:
         """

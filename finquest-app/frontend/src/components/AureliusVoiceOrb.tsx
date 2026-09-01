@@ -25,6 +25,8 @@ export const AureliusVoiceOrb: React.FC<AureliusVoiceOrbProps> = ({
   const [isThinking, setIsThinking] = useState(false);
   const [voiceMuted, setVoiceMuted] = useState(false);
   const [inputQuery, setInputQuery] = useState('');
+  const [apiKey, setApiKey] = useState(localStorage.getItem('finquest_gemini_key') || '');
+  const [showKeyModal, setShowKeyModal] = useState(false);
   const [messages, setMessages] = useState<MessageItem[]>([
     {
       id: 'welcome',
@@ -138,13 +140,13 @@ export const AureliusVoiceOrb: React.FC<AureliusVoiceOrbProps> = ({
         res = await fetch('/api/voice/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, current_lab: activeLab })
+          body: JSON.stringify({ message: text, current_lab: activeLab, api_key: apiKey })
         });
       } catch {
         res = await fetch('http://127.0.0.1:8000/api/voice/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, current_lab: activeLab })
+          body: JSON.stringify({ message: text, current_lab: activeLab, api_key: apiKey })
         });
       }
 
@@ -254,22 +256,81 @@ export const AureliusVoiceOrb: React.FC<AureliusVoiceOrbProps> = ({
           </div>
         </div>
 
-        {/* Audio Mute Toggle */}
-        <button
-          onClick={() => {
-            if (isSpeaking) window.speechSynthesis.cancel();
-            setVoiceMuted(!voiceMuted);
-          }}
-          className={`p-2 rounded-xl border transition-all ${
-            voiceMuted
-              ? 'bg-red-500/10 border-red-500/30 text-red-400'
-              : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
-          }`}
-          title={voiceMuted ? 'Unmute voice' : 'Mute voice'}
-        >
-          {voiceMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </button>
+        {/* Action Controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowKeyModal(!showKeyModal)}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-semibold transition-all flex items-center gap-1.5 ${
+              apiKey
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                : 'bg-amber-500/10 border-amber-500/30 text-amber-400 animate-pulse'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{apiKey ? '🔑 Key Connected' : '🔑 Connect ChatGPT / Gemini Key'}</span>
+          </button>
+
+          {/* Audio Mute Toggle */}
+          <button
+            onClick={() => {
+              if (isSpeaking) window.speechSynthesis.cancel();
+              setVoiceMuted(!voiceMuted);
+            }}
+            className={`p-2 rounded-xl border transition-all ${
+              voiceMuted
+                ? 'bg-red-500/10 border-red-500/30 text-red-400'
+                : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
+            }`}
+            title={voiceMuted ? 'Unmute voice' : 'Mute voice'}
+          >
+            {voiceMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
+
+      {/* API Key Modal Drawer */}
+      {showKeyModal && (
+        <div className="p-4 bg-slate-900 border-b border-cyan-500/30 space-y-3 animate-fadeIn text-left font-mono text-xs">
+          <div className="flex items-center justify-between text-white font-bold">
+            <span>⚙️ Configure Gemini / OpenAI API Key</span>
+            <button
+              onClick={() => setShowKeyModal(false)}
+              className="text-slate-400 hover:text-white text-xs px-2 py-0.5 rounded bg-white/10"
+            >
+              ✕ Close
+            </button>
+          </div>
+          <p className="text-[11px] text-slate-300">
+            Paste your Google Gemini API Key below to unlock unlimited generative ChatGPT-style voice & text AI explanations:
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Paste AI API Key (AIzaSy...)"
+              className="flex-1 bg-black border border-white/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+            />
+            <button
+              onClick={async () => {
+                localStorage.setItem('finquest_gemini_key', apiKey);
+                try {
+                  await fetch('/api/config/key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: apiKey })
+                  });
+                } catch {}
+                setShowKeyModal(false);
+                alert('API Key saved successfully! Aurelius AI is now fully connected.');
+              }}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl text-xs"
+            >
+              Save Key
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Voice Orb Showstopper Visualizer */}
       <div className="p-6 bg-gradient-to-b from-slate-900/40 via-transparent to-slate-950/60 border-b border-white/5 flex flex-col items-center justify-center relative overflow-hidden">

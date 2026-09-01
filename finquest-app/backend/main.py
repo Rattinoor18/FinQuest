@@ -141,10 +141,21 @@ class VoicePrompt(BaseModel):
     message: str
     current_lab: Optional[str] = None
     context: Optional[Dict[str, Any]] = None
+    api_key: Optional[str] = None
+
+class KeyConfig(BaseModel):
+    api_key: str
+
+@app.post("/api/config/key")
+def update_api_key(req: KeyConfig):
+    success = ai_coach.set_api_key(req.api_key)
+    return {"status": "ok" if success else "error", "active": ai_coach.client is not None}
 
 @app.post("/api/voice/ask")
 def voice_ask(req: VoicePrompt):
     """Voice inquiry endpoint that returns speech synthesis text + synced UI actions."""
+    if req.api_key:
+        ai_coach.set_api_key(req.api_key)
     return ai_coach.process_voice_query(req.message, req.context)
 
 @app.post("/api/coach/chat")
