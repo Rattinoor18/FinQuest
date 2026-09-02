@@ -136,18 +136,25 @@ export const AureliusVoiceOrb: React.FC<AureliusVoiceOrbProps> = ({
     try {
       // Call backend API (try relative endpoint first, fallback to localhost port 8000)
       let res: Response;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
       try {
         res = await fetch('/api/voice/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, current_lab: activeLab, api_key: apiKey })
+          body: JSON.stringify({ message: text, current_lab: activeLab, api_key: apiKey }),
+          signal: controller.signal
         });
       } catch {
         res = await fetch('http://127.0.0.1:8000/api/voice/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, current_lab: activeLab, api_key: apiKey })
+          body: JSON.stringify({ message: text, current_lab: activeLab, api_key: apiKey }),
+          signal: controller.signal
         });
+      } finally {
+        clearTimeout(timeoutId);
       }
 
       if (!res.ok) throw new Error('API failed');
@@ -176,12 +183,15 @@ export const AureliusVoiceOrb: React.FC<AureliusVoiceOrbProps> = ({
       }
     } catch (err) {
       // Fallback local intelligent answers
-      let replyText = `Here is what NISM teaches about "${text}": Always ensure you follow the 50/30/20 rule, build an Emergency Fund of 6 months expenses, and invest in Direct Index Funds.`;
-      let speech = `I have analyzed your question about ${text}. Let's look at the numbers together.`;
+      let replyText = `I am Aurelius, your AI Co-Pilot. I can answer any question about finance, investing, paper trading, technology, science, or general topics!`;
+      let speech = `Hello! I am Coach Aurelius, your AI co-pilot. How can I help you today?`;
       let trigger: LabType | undefined = undefined;
 
       const q = text.toLowerCase();
-      if (q.includes('budget') || q.includes('50/30/20') || q.includes('salary')) {
+      if (q.includes('hello') || q.includes('hi') || q.includes('hey') || q.includes('namaste')) {
+        replyText = "### 👋 Hello! I am Coach Aurelius\nI am your **AI Co-Pilot** powered by **Aurelius Intelligence**.\n\nAsk me any question about finance, investing, paper trading, science, math, or daily life!";
+        speech = "Hello! I am Coach Aurelius, your AI co-pilot. How can I help you today?";
+      } else if (q.includes('budget') || q.includes('50/30/20') || q.includes('salary')) {
         replyText = "Opening the **50/30/20 Budgeting Lab**. Allocate 50% for Needs, 30% for Wants, and invest 20% on the day your salary arrives!";
         speech = "Opening the 50/30/20 Budgeting Lab. Invest 20% on salary day before spending on lifestyle.";
         trigger = 'budgeting';

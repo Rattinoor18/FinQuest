@@ -41,26 +41,8 @@ class AureliusAIEngine:
 
     def is_financial_query(self, query: str) -> bool:
         """
-        Check if query is within the financial, investing, trading, or economics domain.
+        Allows Aurelius Intelligence to operate as a full general-purpose AI model like Gemini/ChatGPT.
         """
-        q = query.lower().strip()
-        non_financial_keywords = [
-            "recipe", "cook", "movie", "actor", "sports", "cricket", "football",
-            "weather", "python code", "javascript", "react", "html", "fix my car",
-            "medical diagnosis", "song", "lyrics", "joke"
-        ]
-        financial_keywords = [
-            "money", "invest", "stock", "nifty", "share", "market", "trade", "portfolio",
-            "cash", "pnl", "return", "cagr", "sip", "fd", "rd", "bond", "mutual fund",
-            "index", "budget", "salary", "expense", "debt", "emi", "credit card", "loan",
-            "inflation", "tax", "cibil", "scam", "fraud", "upi", "term insurance", "ulip",
-            "endowment", "nism", "wealth", "asset", "liability", "dividend", "finance", "aurelius"
-        ]
-
-        if any(kw in q for kw in financial_keywords):
-            return True
-        if any(kw in q for kw in non_financial_keywords) and not any(kw in q for kw in financial_keywords):
-            return False
         return True
 
     def assess_behavior(self, portfolio: PortfolioSummary) -> BehavioralRiskAssessment:
@@ -125,31 +107,6 @@ class AureliusAIEngine:
         Processes query under Coach Aurelius branding with financial domain scoping and context awareness.
         """
         msg_lower = message.lower().strip()
-
-        # Enforce Financial Domain Scoping
-        if not self.is_financial_query(msg_lower):
-            return {
-                "coach": self.coach_name,
-                "speech_text": "I am Coach Aurelius, your dedicated financial education and investment mentor. I can only answer questions related to personal finance, investing, markets, paper trading, and NISM modules.",
-                "markdown_reply": """### 🛡️ Coach Aurelius Scope Notice
-I am **Coach Aurelius** (powered by *Aurelius Intelligence*), your specialized financial education and investment co-pilot.
-
-I am strictly scoped to the **financial domain** to ensure maximum accuracy and discipline. Please ask me about:
-- **NISM Financial Literacy Modules & Concept Labs**
-- **50/30/20 Budgeting & Emergency Funds**
-- **SIP Compounding & The Rule of 72**
-- **Paper Trading, Portfolio Allocation & Concentration Risk**
-- **Fixed Deposits, Inflation & Real Return**
-- **Scam & Fraud Immunity (UPI PIN Safety, Telegram tipsters)**""",
-                "ui_action": "NONE",
-                "lab_id": None,
-                "suggested_prompts": [
-                    "Explain the 50/30/20 rule",
-                    "How does inflation eat my FD?",
-                    "Analyze my current paper portfolio",
-                    "How to spot financial scams?"
-                ]
-            }
 
         ui_action = "NONE"
         lab_id = None
@@ -241,6 +198,20 @@ Fixed Deposits offer capital safety but lose purchasing power against inflation:
 3. **Avoid VIP Telegram option call channels.**
 4. **Report cyber fraud immediately at 1930.**"""
             suggested_prompts = ["How to verify SEBI registration?", "What is RBI Ombudsman?", "Explain term insurance"]
+
+        elif any(k in msg_lower for k in ["hello", "hi", "hey", "namaste", "greetings", "good morning", "good evening", "who are you"]):
+            speech_text = "Hello! I am Coach Aurelius, your AI co-pilot powered by Aurelius Intelligence. How can I assist you today?"
+            markdown_reply = """### 👋 Hello! I am Coach Aurelius
+I am your **AI Co-Pilot** powered by **Aurelius Intelligence**. 
+
+I can assist you with:
+- **Interactive Financial Simulations & Sandboxes**
+- **NISM Curriculum & Compounding Math**
+- **Live Paper Trading & Portfolio Analysis**
+- **Any General Knowledge, Science, Math, or Life Questions**
+
+*Ask me anything or select a prompt below to get started!*"""
+            suggested_prompts = ["Explain the 50/30/20 rule", "How does inflation affect my FD?", "How to start paper trading?"]
 
         else:
             speech_text = f"Coach Aurelius here. Regarding {message}: I can guide you through budgeting, real returns, paper trading, and NISM modules."
