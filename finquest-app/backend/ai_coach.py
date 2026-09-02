@@ -24,8 +24,14 @@ class AureliusAIEngine:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=self.api_key)
-                self.client = genai.GenerativeModel("gemini-1.5-flash")
-                return True
+                for model_name in ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-pro-latest", "gemini-2.5-pro"]:
+                    try:
+                        self.client = genai.GenerativeModel(model_name)
+                        return True
+                    except Exception:
+                        continue
+                self.client = None
+                return False
             except Exception as e:
                 print("Error initializing Gemini API:", e)
                 self.client = None
