@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { AureliusVoiceOrb } from '../components/AureliusVoiceOrb';
+import { AureliusChatbot } from '../components/AureliusChatbot';
 import { AureliusVideoStudio } from '../components/AureliusVideoStudio';
 import { LabType, PageRoute } from '../types';
-import { Bot, Video, Sparkles, ShieldCheck } from 'lucide-react';
+import { Bot, Video, Sparkles } from 'lucide-react';
 
 interface VoiceAIPageProps {
   onTriggerLab: (labId: LabType) => void;
@@ -20,10 +20,10 @@ export const VoiceAIPage: React.FC<VoiceAIPageProps> = ({ onTriggerLab, onNaviga
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 border border-cyan-400/30 text-cyan-400 font-mono text-xs mb-1 rounded-full">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-            <span>AURELIUS INTELLIGENCE FINANCIAL CO-PILOT</span>
+            <span>AURELIUS INTELLIGENCE ALL-PURPOSE AI CO-PILOT</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-tight">
-            Coach Aurelius AI Voice & Literacy Mentor
+            Aurelius AI Chatbot & Voice Mentor
           </h1>
         </div>
 
@@ -38,7 +38,7 @@ export const VoiceAIPage: React.FC<VoiceAIPageProps> = ({ onTriggerLab, onNaviga
             }`}
           >
             <Bot className="w-4 h-4" />
-            <span>AI VOICE & CHAT MENTOR</span>
+            <span>AI INTERACTIVE CHATBOT</span>
           </button>
           <button
             onClick={() => setActiveTab('studio')}
@@ -56,8 +56,8 @@ export const VoiceAIPage: React.FC<VoiceAIPageProps> = ({ onTriggerLab, onNaviga
 
       {/* Main Container View */}
       {activeTab === 'chatbot' ? (
-        <div className="h-[620px]">
-          <AureliusVoiceOrb
+        <div className="h-[640px]">
+          <AureliusChatbot
             onTriggerLab={onTriggerLab}
             activeLab={activeLab}
           />
